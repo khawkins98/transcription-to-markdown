@@ -1,96 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transcription to Markdown Converter</title>
-  <meta name="description" content="Convert Amazon Transcribe JSON files to formatted markdown text">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <!-- Header -->
-  <header class="header">
-    <div class="container">
-      <h1 class="header__title">📝 Transcription to Markdown</h1>
-      <p class="header__subtitle">Convert Amazon Transcribe JSON files to beautifully formatted markdown</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transcription to Markdown Converter</title>
+    <meta
+      name="description"
+      content="Convert Amazon Transcribe JSON files to formatted markdown text"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <h1 class="header__title">📝 Transcription to Markdown</h1>
+        <p class="header__subtitle">
+          Convert Amazon Transcribe JSON files to beautifully formatted markdown
+        </p>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="container">
+        <!-- Upload Section -->
+        <section class="upload-section" id="upload-section">
+          <div class="upload-zone" id="upload-zone">
+            <div class="upload-zone__content">
+              <div class="upload-zone__icon">📄</div>
+              <h2 class="upload-zone__title">Drop your JSON file here</h2>
+              <p class="upload-zone__subtitle">or click to browse for files</p>
+              <button class="btn btn--primary" id="browse-btn">
+                Browse Files
+              </button>
+              <input type="file" id="file-input" accept=".json" hidden />
+            </div>
+            <div class="upload-zone__info">
+              <p>Supports Amazon Transcribe JSON format</p>
+              <p>Maximum file size: 10MB</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Processing Section -->
+        <section
+          class="processing-section"
+          id="processing-section"
+          style="display: none"
+        >
+          <div class="processing-indicator">
+            <div class="spinner"></div>
+            <p class="processing-text">Processing your transcription...</p>
+          </div>
+        </section>
+
+        <!-- Preview Section -->
+        <section
+          class="preview-section"
+          id="preview-section"
+          style="display: none"
+        >
+          <div class="preview-header">
+            <h2 class="preview-title">Markdown Preview</h2>
+            <div class="preview-actions">
+              <button class="btn btn--secondary" id="copy-btn">
+                📋 Copy to Clipboard
+              </button>
+              <button class="btn btn--primary" id="download-btn">
+                💾 Download
+              </button>
+              <button class="btn btn--ghost" id="new-file-btn">
+                🔄 Process New File
+              </button>
+            </div>
+          </div>
+
+          <!-- Formatting Controls -->
+          <div class="formatting-controls" id="formatting-controls">
+            <details class="formatting-panel">
+              <summary class="formatting-toggle">⚙️ Formatting Options</summary>
+              <div class="formatting-content">
+                <div class="formatting-row">
+                  <div class="formatting-group">
+                    <label>📄 Style Preset:</label>
+                    <select id="style-preset" class="formatting-select">
+                      <option value="default">Default</option>
+                      <option value="minimal">Minimal</option>
+                      <option value="detailed">Detailed</option>
+                      <option value="meeting">Meeting Notes</option>
+                      <option value="conversation">Conversation</option>
+                    </select>
+                  </div>
+
+                  <div class="formatting-group">
+                    <label>🏷️ Title Style:</label>
+                    <select id="title-style" class="formatting-select">
+                      <option value="interview">Interview Transcript</option>
+                      <option value="transcript">Transcript</option>
+                      <option value="conversation">Conversation</option>
+                      <option value="meeting">Meeting Notes</option>
+                    </select>
+                  </div>
+
+                  <div class="formatting-group">
+                    <label>👥 Speaker Style:</label>
+                    <select id="speaker-style" class="formatting-select">
+                      <option value="h2">## Header 2</option>
+                      <option value="h3">### Header 3</option>
+                      <option value="bold">**Bold:**</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="formatting-row">
+                  <div class="formatting-group">
+                    <label class="formatting-checkbox">
+                      <input type="checkbox" id="include-timestamps" />
+                      ⏱️ Include Timestamps
+                    </label>
+                  </div>
+
+                  <div class="formatting-group">
+                    <label class="formatting-checkbox">
+                      <input type="checkbox" id="include-word-count" />
+                      🔢 Word Count
+                    </label>
+                  </div>
+
+                  <div class="formatting-group">
+                    <label class="formatting-checkbox">
+                      <input type="checkbox" id="include-duration" />
+                      ⏲️ Duration
+                    </label>
+                  </div>
+
+                  <div class="formatting-group">
+                    <label class="formatting-checkbox">
+                      <input type="checkbox" id="include-metadata" checked />
+                      📊 Metadata
+                    </label>
+                  </div>
+                </div>
+
+                <div class="formatting-row">
+                  <div class="formatting-group">
+                    <label>📏 Paragraph Length:</label>
+                    <input
+                      type="range"
+                      id="paragraph-length"
+                      min="2"
+                      max="6"
+                      value="3"
+                      class="formatting-slider"
+                    />
+                    <span id="paragraph-length-value">3</span> sentences
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <div class="preview-content">
+            <div class="preview-panel">
+              <pre class="markdown-output" id="markdown-output"></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Error Section -->
+        <section class="error-section" id="error-section" style="display: none">
+          <div class="error-content">
+            <div class="error-icon">⚠️</div>
+            <h2 class="error-title">Oops! Something went wrong</h2>
+            <p class="error-message" id="error-message">
+              Please try again with a valid Amazon Transcribe JSON file.
+            </p>
+            <button class="btn btn--primary" id="retry-btn">Try Again</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>
+          Amazon Transcribe to Markdown Converter. Built with ❤️ for video
+          editors.
+        </p>
+        <p>
+          <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+          •
+          <a href="#" onclick="showAbout()">About</a>
+        </p>
+      </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+      <span class="toast__message" id="toast-message"></span>
     </div>
-  </header>
 
-  <!-- Main Content -->
-  <main class="main">
-    <div class="container">
-      <!-- Upload Section -->
-      <section class="upload-section" id="upload-section">
-        <div class="upload-zone" id="upload-zone">
-          <div class="upload-zone__content">
-            <div class="upload-zone__icon">📄</div>
-            <h2 class="upload-zone__title">Drop your JSON file here</h2>
-            <p class="upload-zone__subtitle">or click to browse for files</p>
-            <button class="btn btn--primary" id="browse-btn">Browse Files</button>
-            <input type="file" id="file-input" accept=".json" hidden>
-          </div>
-          <div class="upload-zone__info">
-            <p>Supports Amazon Transcribe JSON format</p>
-            <p>Maximum file size: 10MB</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Processing Section -->
-      <section class="processing-section" id="processing-section" style="display: none;">
-        <div class="processing-indicator">
-          <div class="spinner"></div>
-          <p class="processing-text">Processing your transcription...</p>
-        </div>
-      </section>
-
-      <!-- Preview Section -->
-      <section class="preview-section" id="preview-section" style="display: none;">
-        <div class="preview-header">
-          <h2 class="preview-title">Markdown Preview</h2>
-          <div class="preview-actions">
-            <button class="btn btn--secondary" id="copy-btn">📋 Copy to Clipboard</button>
-            <button class="btn btn--primary" id="download-btn">💾 Download</button>
-            <button class="btn btn--ghost" id="new-file-btn">🔄 Process New File</button>
-          </div>
-        </div>
-        <div class="preview-content">
-          <div class="preview-panel">
-            <pre class="markdown-output" id="markdown-output"></pre>
-          </div>
-        </div>
-      </section>
-
-      <!-- Error Section -->
-      <section class="error-section" id="error-section" style="display: none;">
-        <div class="error-content">
-          <div class="error-icon">⚠️</div>
-          <h2 class="error-title">Oops! Something went wrong</h2>
-          <p class="error-message" id="error-message">Please try again with a valid Amazon Transcribe JSON file.</p>
-          <button class="btn btn--primary" id="retry-btn">Try Again</button>
-        </div>
-      </section>
-    </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <p> Amazon Transcribe to Markdown Converter. Built with ❤️ for video editors.</p>
-      <p>
-        <a href="https://github.com" target="_blank" rel="noopener">GitHub</a> •
-        <a href="#" onclick="showAbout()">About</a>
-      </p>
-    </div>
-  </footer>
-
-  <!-- Toast Notification -->
-  <div class="toast" id="toast">
-    <span class="toast__message" id="toast-message"></span>
-  </div>
-
-  <!-- Scripts -->
-  <script src="js/app.js"></script>
-</body>
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+  </body>
 </html>

@@ -69,7 +69,122 @@ function setupEventListeners() {
     }
   });
 
+  // Formatting controls event listeners
+  setupFormattingEventListeners();
+
   console.log("📝 Event listeners attached");
+}
+
+/**
+ * Set up formatting controls event listeners
+ */
+function setupFormattingEventListeners() {
+  // Style preset selector
+  const stylePreset = document.getElementById("style-preset");
+  if (stylePreset) {
+    stylePreset.addEventListener("change", (e) => {
+      const presetName = e.target.value;
+      if (presetName === "default") {
+        resetFormatOptions();
+      } else {
+        applyFormatPreset(presetName);
+      }
+      updateFormattingControlsFromOptions();
+    });
+  }
+
+  // Individual formatting controls
+  const titleStyle = document.getElementById("title-style");
+  if (titleStyle) {
+    titleStyle.addEventListener("change", (e) => {
+      updateFormatOptions({ titleStyle: e.target.value });
+    });
+  }
+
+  const speakerStyle = document.getElementById("speaker-style");
+  if (speakerStyle) {
+    speakerStyle.addEventListener("change", (e) => {
+      updateFormatOptions({ speakerStyle: e.target.value });
+    });
+  }
+
+  const includeTimestamps = document.getElementById("include-timestamps");
+  if (includeTimestamps) {
+    includeTimestamps.addEventListener("change", (e) => {
+      updateFormatOptions({ includeTimestamps: e.target.checked });
+    });
+  }
+
+  const includeWordCount = document.getElementById("include-word-count");
+  if (includeWordCount) {
+    includeWordCount.addEventListener("change", (e) => {
+      updateFormatOptions({ includeWordCount: e.target.checked });
+    });
+  }
+
+  const includeDuration = document.getElementById("include-duration");
+  if (includeDuration) {
+    includeDuration.addEventListener("change", (e) => {
+      updateFormatOptions({ includeDuration: e.target.checked });
+    });
+  }
+
+  const includeMetadata = document.getElementById("include-metadata");
+  if (includeMetadata) {
+    includeMetadata.addEventListener("change", (e) => {
+      updateFormatOptions({ includeMetadata: e.target.checked });
+    });
+  }
+
+  const paragraphLength = document.getElementById("paragraph-length");
+  const paragraphLengthValue = document.getElementById(
+    "paragraph-length-value"
+  );
+  if (paragraphLength && paragraphLengthValue) {
+    paragraphLength.addEventListener("input", (e) => {
+      const value = parseInt(e.target.value);
+      paragraphLengthValue.textContent = value;
+      updateFormatOptions({ paragraphLength: value });
+    });
+  }
+
+  console.log("📝 Formatting controls event listeners attached");
+}
+
+/**
+ * Update formatting controls UI from current options
+ */
+function updateFormattingControlsFromOptions() {
+  const titleStyle = document.getElementById("title-style");
+  if (titleStyle) titleStyle.value = currentFormatOptions.titleStyle;
+
+  const speakerStyle = document.getElementById("speaker-style");
+  if (speakerStyle) speakerStyle.value = currentFormatOptions.speakerStyle;
+
+  const includeTimestamps = document.getElementById("include-timestamps");
+  if (includeTimestamps)
+    includeTimestamps.checked = currentFormatOptions.includeTimestamps;
+
+  const includeWordCount = document.getElementById("include-word-count");
+  if (includeWordCount)
+    includeWordCount.checked = currentFormatOptions.includeWordCount;
+
+  const includeDuration = document.getElementById("include-duration");
+  if (includeDuration)
+    includeDuration.checked = currentFormatOptions.includeDuration;
+
+  const includeMetadata = document.getElementById("include-metadata");
+  if (includeMetadata)
+    includeMetadata.checked = currentFormatOptions.includeMetadata;
+
+  const paragraphLength = document.getElementById("paragraph-length");
+  const paragraphLengthValue = document.getElementById(
+    "paragraph-length-value"
+  );
+  if (paragraphLength && paragraphLengthValue) {
+    paragraphLength.value = currentFormatOptions.paragraphLength;
+    paragraphLengthValue.textContent = currentFormatOptions.paragraphLength;
+  }
 }
 
 /**
@@ -240,8 +355,8 @@ function processTranscriptionFile(file) {
         // Parse transcription data
         const parsedData = parseAmazonTranscribe(jsonData);
 
-        // Generate markdown
-        const markdown = generateMarkdown(parsedData);
+        // Generate markdown with current formatting options
+        const markdown = generateMarkdown(parsedData, currentFormatOptions);
 
         resolve({
           data: parsedData,
@@ -829,89 +944,318 @@ function mapSpeakers(segments) {
 }
 
 /**
- * Generate markdown from parsed data
+ * Generate markdown from parsed data with advanced formatting options
  * @param {Object} data - Parsed transcription data
+ * @param {Object} options - Formatting options
  * @returns {String} Generated markdown
  */
-function generateMarkdown(data) {
-  console.log("📝 Generating markdown...");
+function generateMarkdown(data, options = {}) {
+  console.log("📝 Generating enhanced markdown...");
 
-  // Start with header
-  let markdown = `# Interview Transcript: ${data.jobName}\n\n`;
+  // Default formatting options
+  const formatOptions = {
+    includeTimestamps: options.includeTimestamps || false,
+    includeMetadata: options.includeMetadata !== false, // default true
+    paragraphLength: options.paragraphLength || 3, // sentences per paragraph
+    titleStyle: options.titleStyle || "interview", // 'interview', 'transcript', 'conversation'
+    speakerStyle: options.speakerStyle || "h2", // 'h2', 'h3', 'bold'
+    includeWordCount: options.includeWordCount || false,
+    includeDuration: options.includeDuration || false,
+    escapeMarkdown: options.escapeMarkdown !== false, // default true
+    ...options,
+  };
 
-  // Add metadata if available
-  if (data.metadata) {
-    markdown += `<!-- Generated on ${new Date().toISOString()} -->\n`;
-    if (data.metadata.status) {
-      markdown += `<!-- Status: ${data.metadata.status} -->\n`;
-    }
-    if (data.metadata.hasSpeakerLabels) {
-      markdown += `<!-- ${
-        data.speakers._metadata?.count || "Unknown"
-      } speakers detected -->\n`;
-    }
-    markdown += "\n";
+  // Generate title based on style preference
+  const title = generateTitle(data, formatOptions.titleStyle);
+  let markdown = `# ${title}\n\n`;
+
+  // Add metadata section if enabled
+  if (formatOptions.includeMetadata) {
+    markdown += generateMetadataSection(data, formatOptions);
   }
 
   // Handle empty segments
   if (!data.segments || data.segments.length === 0) {
-    markdown += data.fullTranscript || "*No transcript content available*";
+    const content = data.fullTranscript || "*No transcript content available*";
+    markdown += formatOptions.escapeMarkdown
+      ? escapeMarkdownContent(content)
+      : content;
     return markdown;
   }
+
+  // Add summary information
+  if (formatOptions.includeWordCount || formatOptions.includeDuration) {
+    markdown += generateSummarySection(data, formatOptions);
+  }
+
+  // Generate speaker sections
+  markdown += generateSpeakerSections(data, formatOptions);
+
+  // Add footer if metadata is enabled
+  if (formatOptions.includeMetadata) {
+    markdown += generateFooterSection(data, formatOptions);
+  }
+
+  console.log("✅ Enhanced markdown generation complete");
+  return markdown;
+}
+
+/**
+ * Generate title based on job name and style preference
+ * @param {Object} data - Parsed transcription data
+ * @param {String} style - Title style ('interview', 'transcript', 'conversation')
+ * @returns {String} Generated title
+ */
+function generateTitle(data, style = "interview") {
+  const jobName = data.jobName || "Transcription";
+
+  // Clean up job name for better readability
+  const cleanJobName = jobName
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (l) => l.toUpperCase())
+    .trim();
+
+  switch (style) {
+    case "transcript":
+      return `Transcript: ${cleanJobName}`;
+    case "conversation":
+      return `Conversation: ${cleanJobName}`;
+    case "meeting":
+      return `Meeting Notes: ${cleanJobName}`;
+    case "interview":
+    default:
+      return `Interview Transcript: ${cleanJobName}`;
+  }
+}
+
+/**
+ * Generate metadata section with processing information
+ * @param {Object} data - Parsed transcription data
+ * @param {Object} options - Formatting options
+ * @returns {String} Metadata section
+ */
+function generateMetadataSection(data, options) {
+  let metadata = "";
+
+  // Add HTML comments for metadata
+  metadata += `<!-- Generated on ${new Date().toISOString()} -->\n`;
+
+  if (data.metadata) {
+    if (data.metadata.status) {
+      metadata += `<!-- Status: ${data.metadata.status} -->\n`;
+    }
+
+    if (data.metadata.hasSpeakerLabels) {
+      const speakerCount =
+        data.speakers._metadata?.count ||
+        Object.keys(data.speakers).filter((k) => k !== "_metadata").length;
+      metadata += `<!-- ${speakerCount} speakers detected -->\n`;
+    }
+
+    if (data.metadata.hasItems) {
+      metadata += `<!-- Word-level timing data available -->\n`;
+    }
+
+    if (data.metadata.processingTime) {
+      metadata += `<!-- Processing time: ${data.metadata.processingTime}ms -->\n`;
+    }
+  }
+
+  metadata += "\n";
+  return metadata;
+}
+
+/**
+ * Generate summary section with word count and duration
+ * @param {Object} data - Parsed transcription data
+ * @param {Object} options - Formatting options
+ * @returns {String} Summary section
+ */
+function generateSummarySection(data, options) {
+  let summary = "";
+
+  if (options.includeWordCount || options.includeDuration) {
+    summary += "## Summary\n\n";
+
+    if (options.includeWordCount) {
+      const wordCount = calculateWordCount(data);
+      summary += `**Word Count:** ${wordCount}\n\n`;
+    }
+
+    if (options.includeDuration && data.segments.length > 0) {
+      const duration = calculateDuration(data);
+      summary += `**Duration:** ${formatDuration(duration)}\n\n`;
+    }
+
+    const speakerCount =
+      data.speakers._metadata?.count ||
+      Object.keys(data.speakers).filter((k) => k !== "_metadata").length;
+    summary += `**Speakers:** ${speakerCount}\n\n`;
+
+    summary += "---\n\n";
+  }
+
+  return summary;
+}
+
+/**
+ * Generate speaker sections with enhanced formatting
+ * @param {Object} data - Parsed transcription data
+ * @param {Object} options - Formatting options
+ * @returns {String} Speaker sections
+ */
+function generateSpeakerSections(data, options) {
+  let sections = "";
 
   // Single speaker case
   if (data.segments.length === 1) {
     const segment = data.segments[0];
-    markdown += `## ${segment.speaker}\n\n`;
-    markdown += formatTextWithParagraphs(segment.text);
-    return markdown;
+    sections += generateSpeakerHeader(segment.speaker, options);
+    sections += formatSpeakerContent(segment.text, segment, options);
+    return sections;
   }
 
   // Multi-speaker conversation
   let currentSpeaker = null;
   let speakerContent = "";
+  let speakerStartTime = null;
+  let speakerEndTime = null;
 
   data.segments.forEach((segment, index) => {
     if (segment.speaker !== currentSpeaker) {
       // New speaker - add previous speaker's content if any
       if (currentSpeaker && speakerContent.trim()) {
-        markdown += `## ${currentSpeaker}\n\n`;
-        markdown += formatTextWithParagraphs(speakerContent);
-        markdown += "\n";
+        sections += generateSpeakerHeader(
+          currentSpeaker,
+          options,
+          speakerStartTime,
+          speakerEndTime
+        );
+        sections += formatSpeakerContent(
+          speakerContent,
+          {
+            startTime: speakerStartTime,
+            endTime: speakerEndTime,
+          },
+          options
+        );
+        sections += "\n";
       }
 
       // Start new speaker
       currentSpeaker = segment.speaker;
       speakerContent = segment.text;
+      speakerStartTime = segment.startTime;
+      speakerEndTime = segment.endTime;
     } else {
       // Same speaker - continue content
       speakerContent += " " + segment.text;
+      speakerEndTime = segment.endTime; // Update end time
     }
 
     // Handle last segment
     if (index === data.segments.length - 1) {
-      markdown += `## ${currentSpeaker}\n\n`;
-      markdown += formatTextWithParagraphs(speakerContent);
+      sections += generateSpeakerHeader(
+        currentSpeaker,
+        options,
+        speakerStartTime,
+        speakerEndTime
+      );
+      sections += formatSpeakerContent(
+        speakerContent,
+        {
+          startTime: speakerStartTime,
+          endTime: speakerEndTime,
+        },
+        options
+      );
     }
   });
 
-  console.log("✅ Markdown generation complete");
-  return markdown;
+  return sections;
 }
 
 /**
- * Format text with proper paragraph breaks
+ * Generate speaker header with optional timestamp
+ * @param {String} speaker - Speaker name
+ * @param {Object} options - Formatting options
+ * @param {Number} startTime - Speaker start time
+ * @param {Number} endTime - Speaker end time
+ * @returns {String} Speaker header
+ */
+function generateSpeakerHeader(
+  speaker,
+  options,
+  startTime = null,
+  endTime = null
+) {
+  let header = "";
+
+  // Choose header style
+  switch (options.speakerStyle) {
+    case "h3":
+      header = `### ${speaker}`;
+      break;
+    case "bold":
+      header = `**${speaker}:**`;
+      break;
+    case "h2":
+    default:
+      header = `## ${speaker}`;
+      break;
+  }
+
+  // Add timestamp if enabled and available
+  if (options.includeTimestamps && startTime !== null) {
+    const timeInfo =
+      endTime !== null
+        ? ` (${formatTimestamp(startTime)} - ${formatTimestamp(endTime)})`
+        : ` (${formatTimestamp(startTime)})`;
+    header += timeInfo;
+  }
+
+  header += "\n\n";
+  return header;
+}
+
+/**
+ * Format speaker content with enhanced paragraph breaks
+ * @param {String} content - Speaker content
+ * @param {Object} segment - Segment information
+ * @param {Object} options - Formatting options
+ * @returns {String} Formatted content
+ */
+function formatSpeakerContent(content, segment, options) {
+  if (!content) return "";
+
+  // Escape markdown if enabled
+  if (options.escapeMarkdown) {
+    content = escapeMarkdownContent(content);
+  }
+
+  // Format with enhanced paragraph breaks
+  const formatted = formatTextWithAdvancedParagraphs(
+    content,
+    options.paragraphLength
+  );
+
+  return formatted;
+}
+
+/**
+ * Format text with advanced paragraph breaks and sentence analysis
  * @param {String} text - Raw text
+ * @param {Number} sentencesPerParagraph - Target sentences per paragraph
  * @returns {String} Formatted text with paragraphs
  */
-function formatTextWithParagraphs(text) {
+function formatTextWithAdvancedParagraphs(text, sentencesPerParagraph = 3) {
   if (!text) return "";
 
   // Clean up the text first
   text = text.trim();
 
-  // Split into sentences
-  const sentences = text.split(/([.!?]+\s+)/);
+  // Advanced sentence splitting that handles edge cases
+  const sentences = text.split(/([.!?]+\s+)/).filter((part) => part.trim());
   let formattedText = "";
   let currentParagraph = "";
   let sentenceCount = 0;
@@ -924,8 +1268,13 @@ function formatTextWithParagraphs(text) {
       currentParagraph += part;
       sentenceCount++;
 
-      // Start new paragraph after 3-4 sentences or at natural breaks
-      if (sentenceCount >= 3) {
+      // Check for natural paragraph breaks
+      const nextPart = sentences[i + 1];
+      const shouldBreak =
+        sentenceCount >= sentencesPerParagraph ||
+        isNaturalBreak(currentParagraph, nextPart);
+
+      if (shouldBreak) {
         formattedText += currentParagraph.trim() + "\n\n";
         currentParagraph = "";
         sentenceCount = 0;
@@ -950,6 +1299,150 @@ function formatTextWithParagraphs(text) {
   }
 
   return formattedText;
+}
+
+/**
+ * Check if there should be a natural paragraph break
+ * @param {String} currentParagraph - Current paragraph content
+ * @param {String} nextPart - Next sentence part
+ * @returns {Boolean} Whether to break paragraph
+ */
+function isNaturalBreak(currentParagraph, nextPart) {
+  if (!nextPart) return true;
+
+  // Break on topic transitions (basic heuristics)
+  const transitionWords = [
+    "However,",
+    "Moreover,",
+    "Furthermore,",
+    "Additionally,",
+    "In contrast,",
+    "On the other hand,",
+    "Meanwhile,",
+    "Subsequently,",
+    "Therefore,",
+    "Consequently,",
+    "As a result,",
+    "In conclusion,",
+  ];
+
+  return transitionWords.some((word) => nextPart.trim().startsWith(word));
+}
+
+/**
+ * Generate footer section
+ * @param {Object} data - Parsed transcription data
+ * @param {Object} options - Formatting options
+ * @returns {String} Footer section
+ */
+function generateFooterSection(data, options) {
+  let footer = "\n---\n\n";
+  footer +=
+    "*Transcript generated automatically from Amazon Transcribe output*\n\n";
+
+  if (data.metadata && data.metadata.processingTime) {
+    footer += `*Processing completed in ${data.metadata.processingTime}ms*\n`;
+  }
+
+  return footer;
+}
+
+/**
+ * Calculate total word count
+ * @param {Object} data - Parsed transcription data
+ * @returns {Number} Word count
+ */
+function calculateWordCount(data) {
+  if (!data.segments || data.segments.length === 0) {
+    return data.fullTranscript ? data.fullTranscript.split(/\s+/).length : 0;
+  }
+
+  return data.segments.reduce((count, segment) => {
+    return count + (segment.text ? segment.text.split(/\s+/).length : 0);
+  }, 0);
+}
+
+/**
+ * Calculate total duration from segments
+ * @param {Object} data - Parsed transcription data
+ * @returns {Number} Duration in seconds
+ */
+function calculateDuration(data) {
+  if (!data.segments || data.segments.length === 0) {
+    return 0;
+  }
+
+  // Find the maximum end time
+  return Math.max(...data.segments.map((segment) => segment.endTime || 0));
+}
+
+/**
+ * Format duration in human-readable format
+ * @param {Number} seconds - Duration in seconds
+ * @returns {String} Formatted duration
+ */
+function formatDuration(seconds) {
+  if (seconds < 60) {
+    return `${Math.round(seconds)} seconds`;
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  } else {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = Math.round(seconds % 60);
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}`;
+  }
+}
+
+/**
+ * Format timestamp in HH:MM:SS format
+ * @param {Number} seconds - Time in seconds
+ * @returns {String} Formatted timestamp
+ */
+function formatTimestamp(seconds) {
+  if (!seconds && seconds !== 0) return "00:00";
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  } else {
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
+  }
+}
+
+/**
+ * Escape markdown special characters
+ * @param {String} text - Text to escape
+ * @returns {String} Escaped text
+ */
+function escapeMarkdownContent(text) {
+  if (!text) return "";
+
+  return text
+    .replace(/\\/g, "\\\\")
+    .replace(/\*/g, "\\*")
+    .replace(/_/g, "\\_")
+    .replace(/`/g, "\\`")
+    .replace(/~/g, "\\~")
+    .replace(/\[/g, "\\[")
+    .replace(/\]/g, "\\]")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)")
+    .replace(/#/g, "\\#")
+    .replace(/\+/g, "\\+")
+    .replace(/-/g, "\\-")
+    .replace(/\./g, "\\.")
+    .replace(/!/g, "\\!")
+    .replace(/\|/g, "\\|");
 }
 
 /**
@@ -1017,6 +1510,9 @@ function showPreviewState() {
   hideAllSections();
   elements.previewSection.style.display = "block";
   elements.markdownOutput.textContent = currentState.markdownOutput;
+
+  // Initialize formatting controls with current options
+  updateFormattingControlsFromOptions();
 }
 
 /**
@@ -1213,3 +1709,266 @@ function testPhase3Implementation() {
 window.testPhase3Implementation = testPhase3Implementation;
 
 console.log("🎉 Application loaded successfully!");
+
+/**
+ * Format text with proper paragraph breaks (legacy function - redirects to advanced version)
+ * @param {String} text - Raw text
+ * @returns {String} Formatted text with paragraphs
+ */
+function formatTextWithParagraphs(text) {
+  return formatTextWithAdvancedParagraphs(text, 3);
+}
+
+// ===== FORMATTING OPTIONS MANAGEMENT =====
+
+/**
+ * Default formatting options
+ */
+const DEFAULT_FORMAT_OPTIONS = {
+  includeTimestamps: false,
+  includeMetadata: true,
+  paragraphLength: 3,
+  titleStyle: "interview",
+  speakerStyle: "h2",
+  includeWordCount: false,
+  includeDuration: false,
+  escapeMarkdown: true,
+};
+
+/**
+ * Current formatting options (can be modified via UI or console)
+ */
+let currentFormatOptions = { ...DEFAULT_FORMAT_OPTIONS };
+
+/**
+ * Update formatting options
+ * @param {Object} newOptions - New options to merge
+ */
+function updateFormatOptions(newOptions) {
+  currentFormatOptions = { ...currentFormatOptions, ...newOptions };
+  console.log("📝 Format options updated:", currentFormatOptions);
+
+  // Regenerate markdown if we have data
+  if (currentState.transcriptData) {
+    regenerateMarkdown();
+  }
+}
+
+/**
+ * Reset formatting options to defaults
+ */
+function resetFormatOptions() {
+  currentFormatOptions = { ...DEFAULT_FORMAT_OPTIONS };
+  console.log("🔄 Format options reset to defaults");
+
+  // Regenerate markdown if we have data
+  if (currentState.transcriptData) {
+    regenerateMarkdown();
+  }
+}
+
+/**
+ * Regenerate markdown with current options
+ */
+function regenerateMarkdown() {
+  if (!currentState.transcriptData) {
+    console.warn("⚠️ No transcript data available for regeneration");
+    return;
+  }
+
+  console.log("🔄 Regenerating markdown with current options...");
+  currentState.markdownOutput = generateMarkdown(
+    currentState.transcriptData,
+    currentFormatOptions
+  );
+
+  // Update UI if we're in preview state
+  if (elements.previewSection.style.display === "block") {
+    elements.markdownOutput.textContent = currentState.markdownOutput;
+  }
+
+  showToast("Markdown regenerated with new options!", "success");
+}
+
+/**
+ * Get current formatting options
+ * @returns {Object} Current formatting options
+ */
+function getFormatOptions() {
+  return { ...currentFormatOptions };
+}
+
+// ===== ADVANCED FORMATTING PRESETS =====
+
+/**
+ * Predefined formatting presets
+ */
+const FORMAT_PRESETS = {
+  minimal: {
+    includeTimestamps: false,
+    includeMetadata: false,
+    paragraphLength: 4,
+    titleStyle: "transcript",
+    speakerStyle: "bold",
+    includeWordCount: false,
+    includeDuration: false,
+    escapeMarkdown: false,
+  },
+  detailed: {
+    includeTimestamps: true,
+    includeMetadata: true,
+    paragraphLength: 2,
+    titleStyle: "interview",
+    speakerStyle: "h2",
+    includeWordCount: true,
+    includeDuration: true,
+    escapeMarkdown: true,
+  },
+  meeting: {
+    includeTimestamps: true,
+    includeMetadata: true,
+    paragraphLength: 3,
+    titleStyle: "meeting",
+    speakerStyle: "h3",
+    includeWordCount: true,
+    includeDuration: true,
+    escapeMarkdown: true,
+  },
+  conversation: {
+    includeTimestamps: false,
+    includeMetadata: false,
+    paragraphLength: 5,
+    titleStyle: "conversation",
+    speakerStyle: "bold",
+    includeWordCount: false,
+    includeDuration: false,
+    escapeMarkdown: false,
+  },
+};
+
+/**
+ * Apply a formatting preset
+ * @param {String} presetName - Name of the preset to apply
+ */
+function applyFormatPreset(presetName) {
+  if (!FORMAT_PRESETS[presetName]) {
+    console.error(`❌ Unknown format preset: ${presetName}`);
+    return;
+  }
+
+  updateFormatOptions(FORMAT_PRESETS[presetName]);
+  showToast(`Applied "${presetName}" formatting preset!`, "success");
+}
+
+/**
+ * Test function for Phase 4 implementation
+ * This function can be called from browser console for testing
+ */
+function testPhase4Implementation() {
+  console.log("🧪 Testing Phase 4 Implementation...");
+
+  // Test data with multiple speakers and timing information
+  const testData = {
+    jobName: "test-interview-session",
+    metadata: {
+      status: "COMPLETED",
+      hasItems: true,
+      hasSpeakerLabels: true,
+      processingTime: 1250,
+    },
+    speakers: {
+      "Speaker 1": "Speaker 1",
+      "Speaker 2": "Speaker 2",
+      _metadata: { count: 2, order: ["Speaker 1", "Speaker 2"] },
+    },
+    segments: [
+      {
+        speaker: "Speaker 1",
+        text: "Hello, thank you for joining us today. How are you feeling about this interview? I hope you're comfortable and ready to share your experiences with us.",
+        startTime: 0,
+        endTime: 8.5,
+      },
+      {
+        speaker: "Speaker 2",
+        text: "Thank you for having me. I'm feeling good about this opportunity. However, I must say that I'm a bit nervous. Moreover, I'm excited to discuss my background and experiences with you.",
+        startTime: 9.0,
+        endTime: 18.2,
+      },
+      {
+        speaker: "Speaker 1",
+        text: "That's completely understandable. Let's start with your background. Can you tell us about your previous experience in this field? What projects have you worked on recently?",
+        startTime: 19.0,
+        endTime: 28.7,
+      },
+    ],
+  };
+
+  try {
+    console.log("Testing different formatting options...");
+
+    // Test 1: Default formatting
+    console.log("📝 Test 1: Default formatting");
+    const defaultMarkdown = generateMarkdown(testData);
+    console.log("Default markdown length:", defaultMarkdown.length);
+
+    // Test 2: With timestamps
+    console.log("📝 Test 2: With timestamps");
+    const timestampMarkdown = generateMarkdown(testData, {
+      includeTimestamps: true,
+      includeDuration: true,
+      includeWordCount: true,
+    });
+    console.log(
+      "Timestamp markdown sample:",
+      timestampMarkdown.substring(0, 200) + "..."
+    );
+
+    // Test 3: Different title styles
+    console.log("📝 Test 3: Different title styles");
+    const meetingMarkdown = generateMarkdown(testData, {
+      titleStyle: "meeting",
+      speakerStyle: "h3",
+    });
+    console.log("Meeting style title:", meetingMarkdown.split("\n")[0]);
+
+    // Test 4: Minimal formatting
+    console.log("📝 Test 4: Minimal formatting");
+    const minimalMarkdown = generateMarkdown(testData, FORMAT_PRESETS.minimal);
+    console.log("Minimal markdown length:", minimalMarkdown.length);
+
+    // Test 5: Format functions
+    console.log("📝 Test 5: Format utility functions");
+    console.log("Duration 125.5s:", formatDuration(125.5));
+    console.log("Timestamp 125.5s:", formatTimestamp(125.5));
+    console.log("Duration 3665s:", formatDuration(3665));
+    console.log("Word count:", calculateWordCount(testData));
+
+    // Test 6: Special character escaping
+    console.log("📝 Test 6: Special character escaping");
+    const specialText =
+      "This has *markdown* characters and [links] and #headers";
+    console.log("Original:", specialText);
+    console.log("Escaped:", escapeMarkdownContent(specialText));
+
+    console.log("✅ Phase 4 test completed successfully!");
+
+    return {
+      defaultMarkdown,
+      timestampMarkdown,
+      meetingMarkdown,
+      minimalMarkdown,
+      testData,
+    };
+  } catch (error) {
+    console.error("❌ Phase 4 test failed:", error);
+    return { error: error.message };
+  }
+}
+
+// Make formatting functions available globally for console testing
+window.testPhase4Implementation = testPhase4Implementation;
+window.updateFormatOptions = updateFormatOptions;
+window.applyFormatPreset = applyFormatPreset;
+window.getFormatOptions = getFormatOptions;
+window.resetFormatOptions = resetFormatOptions;
+window.FORMAT_PRESETS = FORMAT_PRESETS;
