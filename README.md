@@ -31,6 +31,9 @@ Transform your Amazon Transcribe JSON files into beautifully formatted markdown 
 - **[aws-transcribe-transcript](https://github.com/purdy/aws-transcribe-transcript)**
   A simple PHP script that takes Amazon Transcribe output and generates a readable transcript, with optional speaker labels and timestamps. This one's perfect for Python users who want a no-frills, scriptable way to get plain text or basic HTML from their JSON files.
 
+- **[amazon-transcribe-output-word-document](https://github.com/aws-samples/amazon-transcribe-output-word-document)**
+  An official AWS Python3 project that converts Amazon Transcribe JSON into Word documents.
+
 ## 🚀 Get Started in 30 Seconds
 
 ### Try It Online

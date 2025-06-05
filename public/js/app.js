@@ -30,6 +30,7 @@ const elements = {
   errorMessage: document.getElementById("error-message"),
   downloadWordBtn: document.getElementById("download-word-btn"),
   downloadRtfBtn: document.getElementById("download-rtf-btn"),
+  downloadSampleBtn: document.getElementById("download-sample-btn"),
 };
 
 // ===== APPLICATION INITIALIZATION =====
@@ -79,6 +80,9 @@ function setupEventListeners() {
   }
   if (elements.downloadRtfBtn) {
     elements.downloadRtfBtn.addEventListener("click", downloadAsRTF);
+  }
+  if (elements.downloadSampleBtn) {
+    elements.downloadSampleBtn.addEventListener("click", downloadSampleJson);
   }
 
   console.log("📝 Event listeners attached");
@@ -1492,6 +1496,34 @@ function downloadMarkdown() {
   URL.revokeObjectURL(url);
 
   showToast("Download started!", "success");
+}
+
+/**
+ * Download sample JSON file
+ */
+function downloadSampleJson() {
+  fetch("sample.json")
+    .then((response) => response.json())
+    .then((data) => {
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "amazon-transcribe-sample.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast("Sample JSON downloaded!", "success");
+    })
+    .catch((error) => {
+      console.error("Error downloading sample JSON:", error);
+      showToast("Error downloading sample file", "error");
+    });
 }
 
 /**
