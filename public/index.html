@@ -38,7 +38,15 @@
               <input type="file" id="file-input" accept=".json" hidden />
             </div>
             <div class="upload-zone__info">
-              <p>Supports Amazon Transcribe JSON format</p>
+              <p>
+                Supports
+                <a
+                  href="https://docs.aws.amazon.com/transcribe/latest/APIReference/API_StartTranscriptionJob.html"
+                  target="_blank"
+                  rel="noopener"
+                  >Amazon Transcribe JSON format</a
+                >
+              </p>
               <p>Maximum file size: 10MB</p>
             </div>
           </div>
@@ -65,11 +73,15 @@
           <div class="preview-header">
             <h2 class="preview-title">Markdown Preview</h2>
             <div class="preview-actions">
-              <button class="btn btn--secondary" id="copy-btn">
-                📋 Copy to Clipboard
-              </button>
+              <button class="btn btn--secondary" id="copy-btn">📋 Copy</button>
               <button class="btn btn--primary" id="download-btn">
-                💾 Download
+                💾 Download Markdown (.md)
+              </button>
+              <button class="btn btn--primary" id="download-word-btn">
+                📝 Word (.docx)
+              </button>
+              <button class="btn btn--primary" id="download-rtf-btn">
+                📄 RTF (.rtf)
               </button>
               <button class="btn btn--ghost" id="new-file-btn">
                 🔄 Process New File
@@ -191,9 +203,12 @@
           editors.
         </p>
         <p>
-          <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
-          •
-          <a href="#" onclick="showAbout()">About</a>
+          <a
+            href="https://github.com/khawkins98/transcription-to-markdown"
+            target="_blank"
+            rel="noopener"
+            >🗄️ GitHub</a
+          >
         </p>
       </div>
     </footer>

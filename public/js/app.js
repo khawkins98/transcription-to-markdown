@@ -28,6 +28,8 @@ const elements = {
   toast: document.getElementById("toast"),
   toastMessage: document.getElementById("toast-message"),
   errorMessage: document.getElementById("error-message"),
+  downloadWordBtn: document.getElementById("download-word-btn"),
+  downloadRtfBtn: document.getElementById("download-rtf-btn"),
 };
 
 // ===== APPLICATION INITIALIZATION =====
@@ -71,6 +73,13 @@ function setupEventListeners() {
 
   // Formatting controls event listeners
   setupFormattingEventListeners();
+
+  if (elements.downloadWordBtn) {
+    elements.downloadWordBtn.addEventListener("click", downloadAsWord);
+  }
+  if (elements.downloadRtfBtn) {
+    elements.downloadRtfBtn.addEventListener("click", downloadAsRTF);
+  }
 
   console.log("📝 Event listeners attached");
 }
@@ -1972,3 +1981,94 @@ window.applyFormatPreset = applyFormatPreset;
 window.getFormatOptions = getFormatOptions;
 window.resetFormatOptions = resetFormatOptions;
 window.FORMAT_PRESETS = FORMAT_PRESETS;
+
+function downloadAsWord() {
+  const filename = generateFilename().replace(/\.md$/, ".docx");
+  const htmlContent = markdownToHtml(currentState.markdownOutput);
+  const blob = new Blob(
+    [
+      '<html><head><meta charset="utf-8"></head><body>',
+      htmlContent,
+      "</body></html>",
+    ],
+    { type: "application/msword" }
+  );
+  triggerDownload(blob, filename);
+  showToast("Word download started!", "success");
+}
+
+function downloadAsRTF() {
+  const filename = generateFilename().replace(/\.md$/, ".rtf");
+  const htmlContent = markdownToHtml(currentState.markdownOutput);
+  const rtfContent = htmlToRtf(htmlContent);
+  const blob = new Blob([rtfContent], { type: "application/rtf" });
+  triggerDownload(blob, filename);
+  showToast("RTF download started!", "success");
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Minimal HTML to RTF converter (basic tags only)
+function htmlToRtf(html) {
+  let rtf = "{\\rtf1\\ansi\n";
+  rtf += html
+    .replace(/<b>(.*?)<\/b>/gi, "{\\b $1}")
+    .replace(/<strong>(.*?)<\/strong>/gi, "{\\b $1}")
+    .replace(/<i>(.*?)<\/i>/gi, "{\\i $1}")
+    .replace(/<em>(.*?)<\/em>/gi, "{\\i $1}")
+    .replace(/<h1>(.*?)<\/h1>/gi, "\n\\fs36 $1\\par\n")
+    .replace(/<h2>(.*?)<\/h2>/gi, "\n\\fs28 $1\\par\n")
+    .replace(/<h3>(.*?)<\/h3>/gi, "\n\\fs24 $1\\par\n")
+    .replace(/<p>(.*?)<\/p>/gi, "$1\\par\n")
+    .replace(/<br\s*\/?>(\n)?/gi, "\\line ")
+    .replace(/<ul>/gi, "")
+    .replace(/<\/ul>/gi, "")
+    .replace(/<ol>/gi, "")
+    .replace(/<\/ol>/gi, "")
+    .replace(/<li>(.*?)<\/li>/gi, "\\bullet $1\\par\n")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'");
+  rtf += "\n}";
+  return rtf;
+}
+
+// Minimal markdown to HTML converter for export (fallback if none exists)
+function markdownToHtml(md) {
+  if (!md) return "";
+  let html = md;
+  // Headers
+  html = html.replace(/^###### (.*)$/gm, "<h6>$1</h6>");
+  html = html.replace(/^##### (.*)$/gm, "<h5>$1</h5>");
+  html = html.replace(/^#### (.*)$/gm, "<h4>$1</h4>");
+  html = html.replace(/^### (.*)$/gm, "<h3>$1</h3>");
+  html = html.replace(/^## (.*)$/gm, "<h2>$1</h2>");
+  html = html.replace(/^# (.*)$/gm, "<h1>$1</h1>");
+  // Bold
+  html = html.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
+  // Italic
+  html = html.replace(/\*(.*?)\*/g, "<i>$1</i>");
+  // Lists
+  html = html.replace(/^\s*\* (.*)$/gm, "<li>$1</li>");
+  html = html.replace(/(<li>.*<\/li>)/gms, "<ul>$1</ul>");
+  // Paragraphs
+  html = html.replace(
+    /^(?!<h\d|<ul|<li|<\/ul|<\/li|<b|<i|<\/b|<\/i|<p|<\/p|<blockquote|<pre|<code|<hr|<table|<tr|<td|<th|<\/table|<\/tr|<\/td|<\/th|<img|<a|<\/a|<\/blockquote|<\/pre|<\/code|<hr|<br)(.+)$/gm,
+    "<p>$1</p>"
+  );
+  // Line breaks
+  html = html.replace(/\n/g, "");
+  return html;
+}

@@ -6,20 +6,7 @@ Transform your Amazon Transcribe JSON files into beautifully formatted markdown 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
 
-**You'll learn**: How to convert speech-to-text output into professional documentation in seconds, with customizable formatting options that actually make sense.
-
-**This assumes**: You have Amazon Transcribe JSON files and want readable markdown output without wrestling with command-line tools or complex software.
-
-## 🌟 Why This Matters
-
-### The Problem You Know Too Well
-
-- **Raw Transcribe output**: A mess of JSON that's impossible to read
-- **Manual formatting**: Hours of copy-pasting and reformatting speaker labels
-- **Inconsistent results**: Every team member formats transcripts differently
-- **Privacy concerns**: Uploading sensitive content to random online tools
-
-### What This App Actually Does
+## What This App Actually Does
 
 - **📄 Drag & Drop Processing**: Upload Amazon Transcribe JSON files instantly
 - **🎤 Smart Speaker Detection**: Automatically identifies and labels different speakers
@@ -28,7 +15,7 @@ Transform your Amazon Transcribe JSON files into beautifully formatted markdown 
 - **💾 Multiple Export Options**: Copy to clipboard or download as `.md` files
 - **🔒 Privacy-First**: All processing happens in your browser—your files never leave your device
 
-### Advanced Formatting That Actually Works
+## Advanced Formatting That Actually Works
 
 - **🎛️ Interactive Controls**: Comprehensive formatting panel with live preview
 - **📋 Smart Presets**: One-click templates for interviews, meetings, conversations
@@ -36,30 +23,19 @@ Transform your Amazon Transcribe JSON files into beautifully formatted markdown 
 - **📊 Built-in Analytics**: Word count, duration, and speaker statistics
 - **🎨 Flexible Styling**: Customize headers, paragraphs, and title formats
 
+## Alternatives
+
+- **[winston](https://github.com/JeeZeh/winston)**
+  A Python command-line tool for converting Amazon Transcribe JSON into clean, readable text or subtitle formats (like SRT and VTT). Winston is great if you want a scriptable, developer-focused solution and don't mind working in the terminal. It's especially handy for batch processing or integrating into larger workflows.
+
+- **[aws-transcribe-transcript](https://github.com/purdy/aws-transcribe-transcript)**
+  A simple PHP script that takes Amazon Transcribe output and generates a readable transcript, with optional speaker labels and timestamps. This one's perfect for Python users who want a no-frills, scriptable way to get plain text or basic HTML from their JSON files.
+
 ## 🚀 Get Started in 30 Seconds
 
 ### Try It Online
 
 Visit the live application: **[khawkins98.github.io/transcription-to-markdown](https://khawkins98.github.io/transcription-to-markdown)**
-
-### Run It Locally
-
-Want to tinker with the code or run it offline?
-
-```bash
-# Clone and enter the project
-git clone https://github.com/username/transcription-to-markdown.git
-cd transcription-to-markdown
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm start
-
-# Open your browser
-open http://localhost:8000
-```
 
 ## 📖 How to Use This Thing
 
@@ -97,13 +73,32 @@ Click **⚙️ Formatting Options** to access the good stuff:
 - **💾 Download File**: Saves with a smart filename based on your original file
 - **👀 Live Preview**: Watch your markdown update in real-time as you adjust settings
 
+### Run It Locally
+
+Want to tinker with the code or run it offline?
+
+```bash
+# Clone and enter the project
+git clone https://github.com/khawkins98/transcription-to-markdown.git
+cd transcription-to-markdown
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm start
+
+# Open your browser
+open http://localhost:8000
+```
+
 ## 💡 Real Examples That Make Sense
 
 ### What Goes In
 
 ```json
 {
-  "jobName": "customer-interview-2024",
+  "jobName": "customer-interview-2025",
   "status": "COMPLETED",
   "results": {
     "transcripts": [
@@ -199,7 +194,7 @@ We support everything Amazon Transcribe throws at us:
 - **File Size**: Handles transcripts up to 10MB without breaking a sweat
 - **Processing Speed**: Instant for typical files (<1MB)
 - **Memory Usage**: Optimized for large transcripts
-- **Privacy**: Zero data sent to external servers (pinky promise)
+- **Privacy**: Zero data sent to external servers
 
 ## 🔧 Development & Customization
 
@@ -271,16 +266,13 @@ Check out our [Contributing Guide](CONTRIBUTING.md) for the full rundown on deve
 
 ### Get Help
 
-- **Issues**: [GitHub Issues](https://github.com/username/transcription-to-markdown/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/username/transcription-to-markdown/discussions)
-- **Email**: <support@transcription-to-markdown.com>
+- **Issues**: [GitHub Issues](https://github.com/khawkins98/transcription-to-markdown/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/khawkins98/transcription-to-markdown/discussions)
 
 ## 📄 License
 
 This project is licensed under the MIT License—use it, modify it, share it however you'd like.
 
 ---
-
-This tool started as a simple script to save me hours of manual transcript formatting. Now it's helping content creators, researchers, and teams around the world turn messy transcripts into beautiful documentation. Whether you're formatting a single interview or processing hundreds of customer calls, thanks for choosing a tool that respects your privacy and values your time.
 
 ⭐ **Found this helpful?** Give us a star on GitHub—it helps other people discover the tool and keeps us motivated to make it even better!
