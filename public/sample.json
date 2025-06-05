@@ -1,0 +1,81 @@
+{
+  "jobName": "my-first-transcription-job",
+  "accountId": "111122223333",
+  "results": {
+    "transcripts": [
+      {
+        "transcript": "Welcome to Amazon Transcribe."
+      }
+    ],
+    "items": [
+      {
+        "id": 0,
+        "start_time": "0.64",
+        "end_time": "1.09",
+        "alternatives": [
+          {
+            "confidence": "1.0",
+            "content": "Welcome"
+          }
+        ],
+        "type": "pronunciation"
+      },
+      {
+        "id": 1,
+        "start_time": "1.09",
+        "end_time": "1.21",
+        "alternatives": [
+          {
+            "confidence": "1.0",
+            "content": "to"
+          }
+        ],
+        "type": "pronunciation"
+      },
+      {
+        "id": 2,
+        "start_time": "1.21",
+        "end_time": "1.74",
+        "alternatives": [
+          {
+            "confidence": "1.0",
+            "content": "Amazon"
+          }
+        ],
+        "type": "pronunciation"
+      },
+      {
+        "id": 3,
+        "start_time": "1.74",
+        "end_time": "2.56",
+        "alternatives": [
+          {
+            "confidence": "1.0",
+            "content": "Transcribe"
+          }
+        ],
+        "type": "pronunciation"
+      },
+      {
+        "id": 4,
+        "alternatives": [
+          {
+            "confidence": "0.0",
+            "content": "."
+          }
+        ],
+        "type": "punctuation"
+      }
+    ],
+    "audio_segments": [
+      {
+        "id": 0,
+        "transcript": "Welcome to Amazon Transcribe.",
+        "start_time": "0.64",
+        "end_time": "2.56",
+        "items": [0, 1, 2, 3, 4]
+      }
+    ]
+  },
+  "status": "COMPLETED"
+}

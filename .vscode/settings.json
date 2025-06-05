@@ -1,0 +1,50 @@
+{
+  "liveServer.settings.port": 8000,
+  "liveServer.settings.root": "/public",
+  "liveServer.settings.CustomBrowser": "chrome",
+  "liveServer.settings.AdvanceCustomBrowserCmdLine": "--incognito --disable-web-security",
+  "liveServer.settings.NoBrowser": false,
+  "liveServer.settings.ignoreFiles": [
+    ".vscode/**",
+    "**/*.scss",
+    "**/*.sass",
+    "**/*.ts",
+    "node_modules/**",
+    "dev-server.js",
+    "package*.json",
+    "*.md"
+  ],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "html.format.indentInnerHtml": true,
+  "html.format.wrapLineLength": 120,
+  "css.validate": true,
+  "javascript.validate.enable": true,
+  "javascript.preferences.quoteStyle": "single",
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "files.associations": {
+    "*.md": "markdown"
+  },
+  "markdown.preview.fontSize": 14,
+  "markdown.preview.lineHeight": 1.6,
+  "workbench.colorCustomizations": {
+    "statusBar.background": "#4f46e5",
+    "statusBar.foreground": "#ffffff"
+  },
+  "terminal.integrated.shell.osx": "/bin/zsh",
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true
+  },
+  "search.exclude": {
+    "**/node_modules": true
+  }
+}

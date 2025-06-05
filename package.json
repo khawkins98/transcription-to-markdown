@@ -1,0 +1,42 @@
+{
+  "name": "transcription-to-markdown",
+  "version": "1.0.0",
+  "description": "A simple web application that converts Amazon Transcribe JSON output to formatted markdown text",
+  "main": "public/index.html",
+  "scripts": {
+    "start": "node dev-server.js",
+    "dev": "node dev-server.js",
+    "dev:open": "node dev-server.js",
+    "dev:sync": "browser-sync start --server public --files 'public/**/*.html,public/**/*.css,public/**/*.js' --port 8000",
+    "install-dev": "npm install",
+    "setup": "npm install && echo '✅ Development environment ready! Run: npm start'",
+    "build": "echo 'No build step required - static files ready for deployment from public/'",
+    "deploy": "echo 'Push to GitHub and configure Pages to serve from /public directory'",
+    "serve": "live-server --port=8000 --open=public/index.html --mount=/public:public"
+  },
+  "keywords": [
+    "transcription",
+    "markdown",
+    "amazon-transcribe",
+    "converter",
+    "javascript",
+    "html5",
+    "github-pages",
+    "hot-reload",
+    "development-server"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "browser-sync": "^2.29.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/khawkins98/transcription-to-markdown.git"
+  },
+  "homepage": "https://khawkins98.github.io/transcription-to-markdown",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
