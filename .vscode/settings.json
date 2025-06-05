@@ -1,0 +1,28 @@
+{
+  "liveServer.settings.port": 8000,
+  "liveServer.settings.root": "/",
+  "liveServer.settings.CustomBrowser": "chrome",
+  "liveServer.settings.donotShowInfoMsg": true,
+  "liveServer.settings.donotVerifyTags": true,
+  "files.associations": {
+    "*.html": "html",
+    "*.css": "css",
+    "*.js": "javascript",
+    "*.json": "json"
+  },
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "html.format.indentInnerHtml": true,
+  "html.format.wrapLineLength": 100,
+  "css.validate": true,
+  "javascript.validate.enable": true,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true
+  },
+  "search.exclude": {
+    "**/node_modules": true
+  }
+} 

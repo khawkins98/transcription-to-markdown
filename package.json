@@ -1,0 +1,41 @@
+{
+  "name": "transcription-to-markdown",
+  "version": "1.0.0",
+  "description": "A simple web application that converts Amazon Transcribe JSON output to formatted markdown text",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=8000 --open=index.html",
+    "dev": "live-server --port=8000 --open=index.html --no-browser",
+    "dev:open": "live-server --port=8000 --open=index.html",
+    "dev:sync": "browser-sync start --server --files '*.html,css/*.css,js/*.js' --port 8000",
+    "install-dev": "npm install",
+    "setup": "npm install && echo '✅ Development environment ready! Run: npm start'",
+    "build": "echo 'No build step required - static files ready for deployment'",
+    "deploy": "echo 'Push to GitHub and enable Pages in repository settings'"
+  },
+  "keywords": [
+    "transcription",
+    "markdown",
+    "amazon-transcribe",
+    "converter",
+    "javascript",
+    "html5",
+    "github-pages",
+    "hot-reload",
+    "development-server"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "browser-sync": "^2.29.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/transcription-to-markdown.git"
+  },
+  "homepage": "https://yourusername.github.io/transcription-to-markdown",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+} 
